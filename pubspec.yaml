@@ -1,7 +1,7 @@
 name: flutter_tesseract_ocr
 description: Tesseract 4 adds a new neural net (LSTM) based OCR engine which is focused on line recognition. It has unicode (UTF-8) support, and can recognize more than 100 languages.
 
-version: 0.4.20
+version: 0.4.26
 # author: khjde1207<khjde1207@gmail.com>
 homepage: https://github.com/khjde1207/tesseract_ocr
 
@@ -15,9 +15,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  path_provider: ^2.0.1
-  path: ^1.8.0 
-  js: ^0.6.3 
+  path_provider: ^2.0.12
+  path: ^1.8.2
+  js: ^0.6.5
 
 dev_dependencies:
   flutter_test:
