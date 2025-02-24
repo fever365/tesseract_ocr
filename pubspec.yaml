@@ -1,7 +1,7 @@
 name: flutter_tesseract_ocr
 description: Tesseract 4 adds a new neural net (LSTM) based OCR engine which is focused on line recognition. It has unicode (UTF-8) support, and can recognize more than 100 languages.
 
-version: 0.4.26
+version: 0.4.28
 # author: khjde1207<khjde1207@gmail.com>
 homepage: https://github.com/khjde1207/tesseract_ocr
 
@@ -10,18 +10,18 @@ analyzer:
     - non-nullable
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=3.0.0 <4.0.0"
   flutter: ">=1.12.0"
 dependencies:
   flutter:
     sdk: flutter
-  path_provider: ^2.0.12
-  path: ^1.8.2
-  js: ^0.6.5
+  path_provider: ^2.1.4
+  path: ^1.9.0
+  js: ^0.7.1
 
 dev_dependencies:
   flutter_test:
-    sdk: flutter 
+    sdk: flutter
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -34,7 +34,7 @@ flutter:
   # The androidPackage and pluginClass identifiers should not ordinarily
   # be modified. They are used by the tooling to maintain consistency when
   # adding or updating assets for this project.
-  
+
   plugin:
     platforms:
       android:
@@ -43,8 +43,8 @@ flutter:
       ios:
         pluginClass: FlutterTesseractOcrPlugin
       web:
-       default_package: FlutterTesseractOcrPlugin
-       
+        default_package: FlutterTesseractOcrPlugin
+
   # For details regarding assets in packages, see
   # https://flutter.dev/assets-and-images/#from-packages
   #

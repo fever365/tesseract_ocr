@@ -2,10 +2,10 @@ package io.paratoner.flutter_tesseract_ocr;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
+import android.os.AsyncTask;
 import androidx.annotation.NonNull;
 
 import java.io.File;
-
 import java.util.Map.*;
 import java.util.Map;
 
@@ -16,33 +16,32 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-import android.os.Handler;
-import android.os.Looper;
-
 public class FlutterTesseractOcrPlugin implements FlutterPlugin, MethodCallHandler {
   private static final int DEFAULT_PAGE_SEG_MODE = TessBaseAPI.PageSegMode.PSM_AUTO_OSD;
-  TessBaseAPI baseApi = null;
-  String lastLanguage = "";
+  private TessBaseAPI baseApi = null;
+  private String lastLanguage = "";
 
   private MethodChannel channel;
+
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-    // TODO: your plugin is now attached to a Flutter experience.
     BinaryMessenger messenger = flutterPluginBinding.getBinaryMessenger();
     channel = new MethodChannel(messenger, "flutter_tesseract_ocr");
     channel.setMethodCallHandler(this);
-
   }
 
   @Override
   public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-    // TODO: your plugin is no longer attached to a Flutter experience.
-    channel.setMethodCallHandler(null);
-    channel = null;
-    this.baseApi.recycle();
-    this.baseApi = null;
-
+    if (channel != null) {
+      channel.setMethodCallHandler(null);
+      channel = null;
+    }
+    if (baseApi != null) {
+      baseApi.recycle();
+      baseApi = null;
+    }
   }
+
   @Override
   public void onMethodCall(final MethodCall call, final Result result) {
     switch (call.method) {
@@ -55,17 +54,17 @@ public class FlutterTesseractOcrPlugin implements FlutterPlugin, MethodCallHandl
         if (call.argument("language") != null) {
           DEFAULT_LANGUAGE = call.argument("language");
         }
-        final String[] recognizedText = new String[1];
-        if(baseApi == null || !lastLanguage.equals(DEFAULT_LANGUAGE)){
+
+        if (baseApi == null || !lastLanguage.equals(DEFAULT_LANGUAGE)) {
           baseApi = new TessBaseAPI();
           baseApi.init(tessDataPath, DEFAULT_LANGUAGE);
           lastLanguage = DEFAULT_LANGUAGE;
         }
 
         int psm = DEFAULT_PAGE_SEG_MODE;
-        if(args != null){
+        if (args != null) {
           for (Map.Entry<String, String> entry : args.entrySet()) {
-            if(!entry.getKey().equals("psm")) {
+            if (!entry.getKey().equals("psm")) {
               baseApi.setVariable(entry.getKey(), entry.getValue());
             } else {
               psm = Integer.parseInt(entry.getValue());
@@ -73,10 +72,8 @@ public class FlutterTesseractOcrPlugin implements FlutterPlugin, MethodCallHandl
           }
         }
 
-        final File tempFile = new File(imagePath);
         baseApi.setPageSegMode(psm);
-
-        new MyRunnable(baseApi, tempFile, recognizedText, result, call.method.equals("extractHocr")).run();
+        new OcrAsyncTask(baseApi, new File(imagePath), result, call.method.equals("extractHocr")).execute();
         break;
 
       default:
@@ -84,45 +81,38 @@ public class FlutterTesseractOcrPlugin implements FlutterPlugin, MethodCallHandl
     }
   }
 
+  private static class OcrAsyncTask extends AsyncTask<Void, Void, String> {
+    private final TessBaseAPI baseApi;
+    private final File imageFile;
+    private final Result result;
+    private final boolean extractHocr;
 
-}
-class MyRunnable implements Runnable {
-  private TessBaseAPI baseApi;
-  private File tempFile;
-  private String[] recognizedText;
-  private Result result;
-  private boolean isHocr;
-
-  public MyRunnable(TessBaseAPI baseApi, File tempFile, String[] recognizedText, Result result, boolean isHocr) {
-    this.baseApi = baseApi;
-    this.tempFile = tempFile;
-    this.recognizedText = recognizedText;
-    this.result = result;
-    this.isHocr = isHocr;
-  }
-
-  @Override
-  public void run() {
-    try {
-      this.baseApi.setImage(this.tempFile);
-      if (isHocr) {
-        recognizedText[0] = this.baseApi.getHOCRText(0);
-      } else {
-        recognizedText[0] = this.baseApi.getUTF8Text();
-      }
-      this.baseApi.stop();
-      // this.baseApi.recycle();
-    } catch (Exception e) {}
-    this.sendSuccess(recognizedText[0]);
-  }
-
-  public void sendSuccess(String msg) {
-    final String str = msg;
-    final Result res = this.result;
-    new Handler(Looper.getMainLooper()).post(new Runnable() {@Override
-    public void run() {
-      res.success(str);
+    OcrAsyncTask(TessBaseAPI baseApi, File imageFile, Result result, boolean extractHocr) {
+      this.baseApi = baseApi;
+      this.imageFile = imageFile;
+      this.result = result;
+      this.extractHocr = extractHocr;
     }
-    });
+
+    @Override
+    protected String doInBackground(Void... voids) {
+      
+        this.baseApi.setImage(imageFile);
+        String recognizedText;
+        if (extractHocr) {
+          recognizedText = this.baseApi.getHOCRText(0);
+        } else {
+          recognizedText = this.baseApi.getUTF8Text();
+        }
+        this.baseApi.stop();
+        return recognizedText;
+      
+
+    }
+
+    @Override
+    protected void onPostExecute(String recognizedText) {
+      result.success(recognizedText);
+    }
   }
 }

@@ -33,10 +33,10 @@
   <!-- This script installs service_worker.js to provide PWA functionality to
     application. For more information, see:
     https://developers.google.com/web/fundamentals/primers/service-workers -->
-    <script src='https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js'></script>
+    <script src='https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js'></script>
     <script>
         async function _extractText(imagePath , mapData){
-          var worker = Tesseract.createWorker();
+          var worker = await Tesseract.createWorker();
           await worker.load();
           await worker.loadLanguage(mapData.language)
           await worker.initialize(mapData.language)

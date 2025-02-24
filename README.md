@@ -4,7 +4,7 @@ Tesseract OCR 4.0 for flutter
 This plugin is based on <a href="https://github.com/tesseract-ocr/tesseract">Tesseract OCR 4</a>
 This plugin uses <a href="https://github.com/adaptech-cz/Tesseract4Android/"> Tesseract4Android </a> and <a href="https://github.com/SwiftyTesseract/SwiftyTesseract">SwiftyTesseract</a>.
 
-[pub.dev link](https://pub.dev/packages/flutter_tesseract_ocr) 
+[pub.dev link](https://pub.dev/packages/flutter_tesseract_ocr)
 
 ---
 
@@ -17,14 +17,12 @@ Consider whether you should use Tesseract
 ---
 
 # example
+
 <p align='center'>
     <img src="https://raw.github.com/khjde1207/tesseract_ocr/master/example.gif" />
 </p>
 
-
-
-
-## install 
+## install
 
 ```
 
@@ -34,16 +32,18 @@ dev_dependencies:
 
 ```
 
-## web  
-./web/index.html 
+## web
 
-use https://www.npmjs.com/package/tesseract.js/v/2.1.1
+./web/index.html
+
+use https://www.npmjs.com/package/tesseract.js/v/v4.0.2
+
 ```
 <body>
-  <script src='https://unpkg.com/tesseract.js@2.1.0/dist/tesseract.min.js'></script>
+  <script src='https://unpkg.com/tesseract.js@v4.0.2/dist/tesseract.min.js'></script>
   <script>
     async function _extractText(imagePath , mapData){
-      var worker = Tesseract.createWorker();
+      var worker = await Tesseract.createWorker();
       await worker.load();
       await worker.loadLanguage(mapData.language)
       await worker.initialize(mapData.language)
@@ -51,7 +51,7 @@ use https://www.npmjs.com/package/tesseract.js/v/2.1.1
       var rtn = await worker.recognize(imagePath, {}, worker.id);
       await worker.terminate();
       if(mapData.args["tessjs_create_hocr"]){
-        return rtn.data.hocr;  
+        return rtn.data.hocr;
       }
       return rtn.data.text;
     }
@@ -61,7 +61,6 @@ use https://www.npmjs.com/package/tesseract.js/v/2.1.1
   .
 </body>
 ```
-
 
 ---
 
@@ -86,6 +85,7 @@ Plugin assumes you have tessdata folder in your assets directory and defined in 
 Check the contents of example/assets folder and example/pubspec.yaml
 
 ---
+
 ## IOS issues
 
 [Initialization of SwiftyTesseract has failed](https://github.com/khjde1207/tesseract_ocr/issues/16)
@@ -101,7 +101,7 @@ Just drag tessdata folder from asset to place under Runner folder in xcode add a
 Using is very simple:
 
 ```
-//args support android / Web , i don't have a mac 
+//args support android / Web , i don't have a mac
 String text = await FlutterTesseractOcr.extractText('/path/to/image', language: 'kor+eng',
         args: {
           "psm": "4",
@@ -113,7 +113,7 @@ String text = await FlutterTesseractOcr.extractText('/path/to/image', language: 
 You can leave `language` empty, it will default to `'eng'.
 
 ```
-//---- dynamic add Tessdata (Android)---- ▼ 
+//---- dynamic add Tessdata (Android)---- ▼
 // https://github.com/tesseract-ocr/tessdata/raw/main/dan_frak.traineddata
 
 HttpClient httpClient = new HttpClient();
@@ -131,6 +131,3 @@ await file.writeAsBytes(bytes);
 //---- dynamic add Tessdata ---- ▲
 
 ```
-
-
-
